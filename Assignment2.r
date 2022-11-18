@@ -126,7 +126,7 @@ df_HLA_B_seq <- data.frame(HLA_B_Title = names(HLA_B_seq_stingset), HLA_B_Sequen
 df_HLA_B_seq
 
 
-#### DATA Exploration for HLA-B
+#### DATA Exploration for HLA-B ####
 
 #calculating the mean length of the sequences for HLA-B used downstream to create a barplot 
 HLA_B_Mean_length = sum(width(HLA_B_seq_stingset)) / length(HLA_B_seq_stingset)
@@ -202,7 +202,7 @@ df_long <- reshape2::melt(DF_GC_AT_content1, id.vars=c("Dinucleotide") ,variable
 df1_long <- na.omit(df_long)
 #Creating the Boxplot
 Frequency_Boxplot <- ggplot(df1_long, aes(x=Gene,y=Percentage,fill=Gene))+
-  geom_boxplot() + labs(title="AT & GC Frequency") +facet_wrap(~Dinucleotide)+
+  geom_boxplot() + labs(title="AT & GC Frequency of HLA_A and HLA_B") +facet_wrap(~Dinucleotide)+
   theme(plot.title = element_text(hjust = 0.5))
 
 Frequency_Boxplot
@@ -262,8 +262,7 @@ df_final <- cbind(df_final, as.data.frame(trinucleotideFrequency(df_final$Sequen
 ncol(df_final)
 
 
-
-####################### Collaborator edit 2 #################################
+####################### Collaborator edit 3 #################################
 #Make a histogram of the sequence length to replace the bar plot that shows the mean length of the frequencies  
 hist(nchar(df_HLA_A_seq$HLA_A_Sequence), xlab = "Sequence_Length", ylab = "Frequency", main = "Frequency Histogram of HLA_A Sequence Lengths")
 
@@ -272,7 +271,7 @@ hist(nchar(df_HLA_B_seq$HLA_B_Sequence), xlab = "Sequence_Length", ylab = "Frequ
 
 
 
-####################### Collaborator edit 3_A ################################
+####################### Collaborator edit 2_A ################################
 #Make data used below in tidy form. df_long contains data that is not tidy. There are duplicate records for each sequence. one for AT and one for GC
 #Get frequencies in new tidy object
 tidy_HLA_A <- cbind(df_HLA_A_seq, data.frame(x=letterFrequency(DNAStringSet(df_HLA_A_seq$HLA_A_Sequence), as.prob = TRUE,letters = c("AT"))), data.frame(x=letterFrequency(DNAStringSet(df_HLA_A_seq$HLA_A_Sequence), as.prob = TRUE,letters = c("GC"))))
@@ -289,17 +288,17 @@ tidy_A_and_B <- rbind(tidy_HLA_A, tidy_HLA_B)
 
 
 
-####################### Collaborator edit 1 and 3_B ################################
+####################### Collaborator edit 1 and 2_B ################################
 #make a histogram of the distribution of AT Frequency for HLA_A and HLA_B to visualize the distribution and view the reason for the small interquartile range observed in the box plots for HLA_B, and to understand why Q1 and Q3 aren't seemingly appearing. 
 #histogram of of AT for HLA_A frequency
 HLA_A_frequencyof_AT <- df_long %>%
   filter(Gene == "HLA_A") %>%
   filter(Dinucleotide == "AT")
-hist(HLA_A_frequencyof_AT$Percentage, xlab = "AT percentage", ylab = "Frequency", main = "Frequency Histogram of HLA_A frequency")
+hist(HLA_A_frequencyof_AT$Percentage, xlab = "AT Frequency", ylab = "Frequency", main = "Frequency Histogram of AT frequency for HLA_A")
 #make the histogram plot with tidy data to cross-check if the same. 
 tidyplot_A <- tidy_A_and_B %>%
   filter(Gene == "HLA-A")
-hist(tidyplot_A$AT_frequency, xlab = "AT percentage", ylab = "Frequency", main = "Frequency Histogram of HLA_A frequency (Tidy plot)")
+hist(tidyplot_A$AT_frequency, xlab = "AT Frequency", ylab = "Frequency", main = "Frequency Histogram of HLA_B frequency (Tidy plot)")
 
 
 
@@ -308,11 +307,19 @@ hist(tidyplot_A$AT_frequency, xlab = "AT percentage", ylab = "Frequency", main =
 HLA_B_frequencyof_AT <- df_long %>%
   filter(Gene == "HLA_B") %>%
   filter(Dinucleotide == "AT")
-hist(HLA_B_frequencyof_AT$Percentage, xlab = "AT percentage", ylab = "Frequency", main = "Frequency Histogram of HLA_B frequency")
+hist(HLA_B_frequencyof_AT$Percentage, xlab = "AT Frequency", ylab = "Frequency", main = "Frequency Histogram of AT frequency for HLA_B")
 #histogram with tidy data
 tidyplot_B <- tidy_A_and_B %>%
   filter(Gene == "HLA-B")
-hist(tidyplot_B$AT_frequency, xlab = "AT percentage", ylab = "Frequency", main = "Frequency Histogram of HLA_B frequency (Tidy plot)")
+hist(tidyplot_B$AT_frequency, xlab = "AT Frequency", ylab = "Frequency", main = "Frequency Histogram of AT percentage HLA_B frequency (Tidy plot)")
+
+
+#Get the actual values of q1 and q3 for AT frequency of HLA_B
+HLA_B_ATfrequency_q1 <- quantile(HLA_B_frequencyof_AT$Percentage, probs = 0.25, na.rm = TRUE)
+HLA_B_ATfrequency_q1
+
+HLA_B_ATfrequency_q3 <- quantile(HLA_B_frequencyof_AT$Percentage, probs = 0.75, na.rm = TRUE)
+HLA_B_ATfrequency_q3
 
 ####################### End of edits ################################
 
