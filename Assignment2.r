@@ -57,8 +57,8 @@ HLA_A_seq_stingset <- readDNAStringSet("HLA_A_seq.fasta")
 
 
 #Creating a dataframe for the HLA-A
-df_HLA_A_seq <- data.frame(HLA_A_Title = names(HLA_A_seq_stingset), HLA_A_Sequence = paste(HLA_A_seq_stingset))
-View(df_HLA_A_seq)
+df_HLA_A_seq1 <- data.frame(HLA_A_Title = names(HLA_A_seq_stingset), HLA_A_Sequence = paste(HLA_A_seq_stingset))
+View(df_HLA_A_seq1)
 
 
 #### DATA Exploration for HLA-A ####
@@ -72,18 +72,18 @@ HLA_A_Mean_length
 summary(nchar(HLA_A_seq_stingset))
 
 #checking for NA in HLA-A sequences 
-sum(is.na(df_HLA_A_seq$HLA_A_Sequence))
+sum(is.na(df_HLA_A_seq1$HLA_A_Sequence))
 
 
 #Getting the range of sequences,this is to know the lower end of sequence length to remove sequences the are short which results in them being compressed when displayed
-seq_nchar(dna(df_HLA_A_seq$HLA_A_Sequence)) %>% range()
+seq_nchar(dna(df_HLA_A_seq1$HLA_A_Sequence)) %>% range()
 
 # Removing sequences that are less than 500bp because some sequences are displayed in a squished manner due to being to small compared to the rest of the sequences
-df_HLA_A_seq = df_HLA_A_seq[(which(nchar(df_HLA_A_seq$HLA_A_Sequence)  > 500)),]
+df_HLA_A_seq2 = df_HLA_A_seq1[(which(nchar(df_HLA_A_seq1$HLA_A_Sequence)  > 500)),]
 
 
 #Removing sequences with N character in the sequence 
-df_HLA_A_seq <- df_HLA_A_seq[grepl("[^N]*", df_HLA_A_seq$HLA_A_Sequence), , drop = FALSE]
+df_HLA_A_seq <- df_HLA_A_seq2[grepl("[^N]*", df_HLA_A_seq2$HLA_A_Sequence), , drop = FALSE]
 
 #Calculating the q1 and q3 for HLA-A sequence,this is to filter sequences that are less than and greater than q1 and q3 
 HLA_A_Sequence_q1 <- quantile(nchar(df_HLA_A_seq$HLA_A_Sequence), probs = 0.25, na.rm = TRUE)
@@ -264,9 +264,9 @@ ncol(df_final)
 
 ####################### Collaborator edit 3 #################################
 #Make a histogram of the sequence length to replace the bar plot that shows the mean length of the frequencies  
-hist(nchar(df_HLA_A_seq$HLA_A_Sequence), xlab = "Sequence_Length", ylab = "Frequency", main = "Frequency Histogram of HLA_A Sequence Lengths")
+hist(nchar(df_HLA_A_seq1$HLA_A_Sequence), xlab = "Sequence_Length", ylab = "Frequency", main = "Frequency Histogram of HLA_A Sequence Lengths")
 
-hist(nchar(df_HLA_B_seq$HLA_B_Sequence), xlab = "Sequence_Length", ylab = "Frequency", main = "Frequency Histogram of HLA_B Sequence Lengths")
+hist(nchar(df_HLA_B_seq1$HLA_B_Sequence), xlab = "Sequence_Length", ylab = "Frequency", main = "Frequency Histogram of HLA_B Sequence Lengths")
 
 
 
