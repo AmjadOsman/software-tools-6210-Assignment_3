@@ -223,6 +223,44 @@ Mean_length_barplot
 
 
 
+#### Creating the predictors that will be used for RandomForest#### 
+
+#Creating a dataframe that contains Columns with the Genes and Column with corresponding sequences, This will be used as the training set 
+df_HLA_B_seq$Gene <- 'HLA-B'
+df_HLA_A_seq$Gene <- 'HLA-A'
+df_Combined <- data.table(merge(df_HLA_B_seq,df_HLA_A_seq,by="Gene",all=TRUE))
+
+
+df_final  <-  melt(df_Combined,
+                   id.vars="Gene",
+                   measure.vars=c("HLA_A_Sequence", "HLA_B_Sequence"),
+                   value.name="Sequence")[order(by=Gene)][, c("Gene", "Sequence")]
+
+#Converting the sequence to DNAstringset class so biostring package is functional on the sequence
+df_final <- as.data.frame(df_final)
+df_final <- na.omit(df_final)
+df_final$Sequence <- DNAStringSet(df_final$Sequence)
+
+#Calculating the nucleotide frequencies and appending onto our dataframe using cbind()
+df_final <- cbind(df_final, as.data.frame(letterFrequency(df_final$Sequence, letters = c("A", "C","G", "T"))))
+
+
+#Adding A, T, and G proportions in relation to total nucleotides 
+df_final$Aprop <- (df_final$A) / (df_final$A + df_final$T + df_final$C + df_final$G)
+
+df_final$Tprop <- (df_final$T) / (df_final$A + df_final$T + df_final$C + df_final$G)
+
+df_final$Gprop <- (df_final$G) / (df_final$A + df_final$T + df_final$C + df_final$G)
+
+
+#Adding dinucleotide frequency (k-mers of length 2), here using proportions as that let's us account for variability in sequence lengths.
+df_final <- cbind(df_final, as.data.frame(dinucleotideFrequency(df_final$Sequence, as.prob = TRUE)))
+
+
+#Adding trinucleotide frequency (k-mers of length 3)
+df_final <- cbind(df_final, as.data.frame(trinucleotideFrequency(df_final$Sequence, as.prob = TRUE)))
+ncol(df_final)
+
 
 
 ####################### Collaborator edit 2 #################################
@@ -279,43 +317,6 @@ hist(tidyplot_B$AT_frequency, xlab = "AT percentage", ylab = "Frequency", main =
 ####################### End of edits ################################
 
 
-#### Creating the predictors that will be used for RandomForest#### 
-
-#Creating a dataframe that contains Columns with the Genes and Column with corresponding sequences, This will be used as the training set 
-df_HLA_B_seq$Gene <- 'HLA-B'
-df_HLA_A_seq$Gene <- 'HLA-A'
-df_Combined <- data.table(merge(df_HLA_B_seq,df_HLA_A_seq,by="Gene",all=TRUE))
-
-
-df_final  <-  melt(df_Combined,
-                id.vars="Gene",
-                measure.vars=c("HLA_A_Sequence", "HLA_B_Sequence"),
-                value.name="Sequence")[order(by=Gene)][, c("Gene", "Sequence")]
-
-#Converting the sequence to DNAstringset class so biostring package is functional on the sequence
-df_final <- as.data.frame(df_final)
-df_final <- na.omit(df_final)
-df_final$Sequence <- DNAStringSet(df_final$Sequence)
-
-#Calculating the nucleotide frequencies and appending onto our dataframe using cbind()
-df_final <- cbind(df_final, as.data.frame(letterFrequency(df_final$Sequence, letters = c("A", "C","G", "T"))))
-
-
-#Adding A, T, and G proportions in relation to total nucleotides 
-df_final$Aprop <- (df_final$A) / (df_final$A + df_final$T + df_final$C + df_final$G)
-
-df_final$Tprop <- (df_final$T) / (df_final$A + df_final$T + df_final$C + df_final$G)
-
-df_final$Gprop <- (df_final$G) / (df_final$A + df_final$T + df_final$C + df_final$G)
-
-
-#Adding dinucleotide frequency (k-mers of length 2), here using proportions as that let's us account for variability in sequence lengths.
-df_final <- cbind(df_final, as.data.frame(dinucleotideFrequency(df_final$Sequence, as.prob = TRUE)))
-
-
-#Adding trinucleotide frequency (k-mers of length 3)
-df_final <- cbind(df_final, as.data.frame(trinucleotideFrequency(df_final$Sequence, as.prob = TRUE)))
-ncol(df_final)
 
 #####TRAINING CLASSIFICATION MODEL ####
 
